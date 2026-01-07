@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagamento - Reserva de Estacionamento GuaruPark</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '690128784061850');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=690128784061850&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <style>
+    .cors-fix-notice strong {
+      color: #1E3A5F;
+    }
+  </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <header class="checkout-header">
+            <div class="header-content">
+                <div class="logo">GuaruPark</div>
+                <div class="security-badge">
+                    <span>🔒</span>
+                    Pagamento 100% Seguro
+                </div>
+            </div>
+        </header>
+
+        <div class="order-summary-mobile">
+            <div class="summary-toggle" onclick="toggleOrderSummary()">
+                <div class="summary-toggle-left">
+                    <span class="summary-toggle-icon">▼</span>
+                    <span class="summary-toggle-text">Exibir resumo da reserva</span>
+                </div>
+                <span class="summary-toggle-price" id="mobileTotalPrice">...</span>
+            </div>
+            <div class="summary-content" id="summaryContent">
+                <div class="summary-content-inner">
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="mobileSubtotal">...</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Diárias</span>
+                            <span id="mobileTotalDays">...</span>
+                        </div>
+                        <div class="total-row final">
+                            <span>Total</span>
+                            <span id="mobileFinalPrice">...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-line" id="progressLine"></div>
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Pagamento</div>
+                </div>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <div class="step-content active" id="step1">
+                <h2 class="step-title">Finalize sua Reserva</h2>
+                <p class="step-subtitle">Preencha os dados abaixo para confirmar sua reserva de estacionamento:</p>
+
+                <form id="contactForm">
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Informações Pessoais</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="email">E-mail *</label>
+                            <input type="email" id="email" name="email" class="form-input" required>
+                            <div class="error-message" id="emailError">Digite um e-mail válido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="firstName">Nome Completo *</label>
+                            <input type="text" id="firstName" name="firstName" class="form-input" required>
+                            <div class="error-message" id="firstNameError">Digite seu nome</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="cpf">CPF *</label>
+                                <input type="text" id="cpf" name="cpf" class="form-input" maxlength="14" required>
+                                <div class="error-message" id="cpfError">Digite um CPF válido</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Telefone *</label>
+                                <input type="tel" id="phone" name="phone" class="form-input" maxlength="15" required>
+                                <div class="error-message" id="phoneError">Digite um telefone válido</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Information Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Dados do Veículo</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="vehiclePlate">Placa *</label>
+                            <input type="text" id="vehiclePlate" name="vehiclePlate" class="form-input" maxlength="7" required placeholder="ABC1D23">
+                            <div class="error-message" id="vehiclePlateError">Digite uma placa válida</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Veículo *</label>
+                            <div class="vehicle-type-options">
+                                <label class="vehicle-option">
+                                    <input type="radio" name="vehicleType" value="car" checked>
+                                    <span class="vehicle-label">🚗 Carro</span>
+                                </label>
+                                <label class="vehicle-option">
+                                    <input type="radio" name="vehicleType" value="suv">
+                                    <span class="vehicle-label">🚙 SUV</span>
+                                </label>
+                                <label class="vehicle-option">
+                                    <input type="radio" name="vehicleType" value="motorcycle">
+                                    <span class="vehicle-label">🏍️ Moto</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Forma de Pagamento</h3>
+
+                        <div class="payment-methods">
+                            <div class="payment-method selected" data-payment="pix">
+                                <div class="payment-header">
+                                    <div class="payment-info">
+                                        <span class="payment-icon">PIX</span>
+                                        <div>
+                                            <p class="payment-name">PIX</p>
+                                            <p class="payment-desc">Aprovação imediata</p>
+                                        </div>
+                                    </div>
+                                    <span class="payment-value" id="pixValue">R$ 0,00</span>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" data-payment="credit">
+                                <div class="payment-header">
+                                    <div class="payment-info">
+                                        <span class="payment-icon">💳</span>
+                                        <div>
+                                            <p class="payment-name">Cartão de Crédito</p>
+                                            <p class="payment-desc">Parcelamento disponível</p>
+                                        </div>
+                                    </div>
+                                    <span class="payment-value" id="creditValue">R$ 0,00</span>
+                                </div>
+                                <div class="payment-details" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label" for="cardNumber">Número do Cartão *</label>
+                                        <input type="text" id="cardNumber" name="cardNumber" class="form-input" maxlength="19" placeholder="0000 0000 0000 0000">
+                                        <div class="error-message" id="cardNumberError">Digite um número de cartão válido</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="cardName">Nome no Cartão *</label>
+                                        <input type="text" id="cardName" name="cardName" class="form-input" placeholder="NOME COMO NO CARTÃO">
+                                        <div class="error-message" id="cardNameError">Digite o nome do titular</div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label" for="cardExpiry">Validade *</label>
+                                            <input type="text" id="cardExpiry" name="cardExpiry" class="form-input" maxlength="5" placeholder="MM/AA">
+                                            <div class="error-message" id="cardExpiryError">Digite a validade</div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="cardCvv">CVV *</label>
+                                            <input type="text" id="cardCvv" name="cardCvv" class="form-input" maxlength="4" placeholder="000">
+                                            <div class="error-message" id="cardCvvError">Digite o CVV</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="installments">Parcelamento *</label>
+                                        <select id="installments" name="installments" class="form-input">
+                                            <option value="">Selecione as parcelas</option>
+                                        </select>
+                                        <div class="error-message" id="installmentsError">Selecione o parcelamento</div>
+                                    </div>
+
+                                    <div class="credit-card-notice" id="creditCardNotice" style="display: none;">
+                                        <p><strong>Atenção:</strong> Será cobrado acréscimo de 5% para pagamento com cartão de crédito.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" data-payment="boleto">
+                                <div class="payment-header">
+                                    <div class="payment-info">
+                                        <span class="payment-icon">🧾</span>
+                                        <div>
+                                            <p class="payment-name">Boleto Bancário</p>
+                                            <p class="payment-desc">Vencimento em 3 dias</p>
+                                        </div>
+                                    </div>
+                                    <span class="payment-value" id="boletoValue">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary btn-full">
+                            Confirmar Reserva
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Resumo da Reserva</h3>
+                
+                <div class="reservation-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Entrada</span>
+                        <p class="detail-value" id="entryDateDisplay">-</p>
+                        <p class="detail-time" id="entryTimeDisplay">-</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Saída</span>
+                        <p class="detail-value" id="exitDateDisplay">-</p>
+                        <p class="detail-time" id="exitTimeDisplay">-</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Tipo de Vaga</span>
+                        <p class="detail-value" id="parkingTypeDisplay">-</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Seguro</span>
+                        <p class="detail-value" id="insuranceDisplay">-</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Total de Diárias</span>
+                        <p class="detail-value" id="totalDaysDisplay">-</p>
+                    </div>
+                </div>
+
+                <div class="order-totals">
+                    <div class="total-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="total-row" id="creditCardFeeRow" style="display: none;">
+                        <span>Acréscimo Cartão</span>
+                        <span style="color: #FF6B35;" id="creditCardFee">+R$ 0,00</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Total</span>
+                        <span id="totalPrice">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="security-info">
+                    <span>🔒</span>
+                    <p>Seus dados estão protegidos com criptografia SSL</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Processando pagamento...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
