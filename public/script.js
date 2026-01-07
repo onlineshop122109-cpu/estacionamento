@@ -1,32 +1,27 @@
-/**
- * CHECKOUT DE ESTACIONAMENTO - JavaScript
- * Funcionalidades: Captura de URL, validações, formatação e pagamento via Pix
- */
-
 // ============================================
-// ESTADO DA APLICAÇÃO
+// ESTADO GLOBAL
 // ============================================
 
 const state = {
-    reservationData: {
-        entryDate: '',
-        entryTime: '',
-        exitDate: '',
-        exitTime: '',
-        parkingType: 'uncovered',
-        insurance: false,
-        totalDays: '0',
-        totalPrice: '0.00',
-    },
     formData: {
         name: '',
         cpf: '',
         phone: '',
         email: '',
         licensePlate: '',
-        vehicleType: 'sedan',
+        vehicleType: 'Sedan'
     },
-    isSubmitting: false,
+    reservationData: {
+        entryDate: '',
+        entryTime: '',
+        exitDate: '',
+        exitTime: '',
+        parkingType: 'covered',
+        insurance: false,
+        totalDays: 0,
+        totalPrice: 0
+    },
+    isSubmitting: false
 };
 
 // ============================================
@@ -52,46 +47,34 @@ const elements = {
     summaryTotalDays: document.getElementById('summaryTotalDays'),
     summaryTotalPrice: document.getElementById('summaryTotalPrice'),
 
-    // Modal
+    // Modal Pix
     pixModal: document.getElementById('pixModal'),
     qrCodeImage: document.getElementById('qrCodeImage'),
-    modalTotalPrice: document.getElementById('modalTotalPrice'),
     pixKey: document.getElementById('pixKey'),
     copyPixBtn: document.getElementById('copyPixBtn'),
     backBtn: document.getElementById('backBtn'),
     confirmPaymentBtn: document.getElementById('confirmPaymentBtn'),
+    modalTotalPrice: document.getElementById('modalTotalPrice'),
 
     // Toast
-    toastContainer: document.getElementById('toastContainer'),
+    toastContainer: document.getElementById('toastContainer')
 };
 
 // ============================================
-// INICIALIZAÇÃO
+// CARREGAMENTO DE DADOS DA URL
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    extractUrlParams();
-    updateSummary();
-    attachEventListeners();
-});
-
-// ============================================
-// EXTRAÇÃO DE PARÂMETROS DA URL
-// ============================================
-
-function extractUrlParams() {
+function loadReservationDataFromURL() {
     const params = new URLSearchParams(window.location.search);
 
-    state.reservationData = {
-        entryDate: params.get('entryDate') || '',
-        entryTime: params.get('entryTime') || '',
-        exitDate: params.get('exitDate') || '',
-        exitTime: params.get('exitTime') || '',
-        parkingType: params.get('parkingType') || 'uncovered',
-        insurance: params.get('insurance') === 'true',
-        totalDays: params.get('totalDays') || '0',
-        totalPrice: params.get('totalPrice') || '0.00',
-    };
+    state.reservationData.entryDate = params.get('entryDate') || '';
+    state.reservationData.entryTime = params.get('entryTime') || '';
+    state.reservationData.exitDate = params.get('exitDate') || '';
+    state.reservationData.exitTime = params.get('exitTime') || '';
+    state.reservationData.parkingType = params.get('parkingType') || 'covered';
+    state.reservationData.insurance = params.get('insurance') === 'true';
+    state.reservationData.totalDays = parseInt(params.get('totalDays')) || 0;
+    state.reservationData.totalPrice = parseFloat(params.get('totalPrice')) || 0;
 }
 
 // ============================================
@@ -172,7 +155,7 @@ function isValidEmail(email) {
 }
 
 function validateForm() {
-    const { name, cpf, phone, email, licensePlate } = state.formData;
+    const { name, cpf, phone, email } = state.formData;
 
     if (!name.trim()) {
         showToast('Por favor, insira seu nome', 'error');
@@ -191,11 +174,6 @@ function validateForm() {
 
     if (!isValidEmail(email)) {
         showToast('Email inválido', 'error');
-        return false;
-    }
-
-    if (!licensePlate.trim() || licensePlate.replace(/\D/g, '').length < 7) {
-        showToast('Placa do veículo inválida', 'error');
         return false;
     }
 
@@ -256,7 +234,7 @@ function attachEventListeners() {
 // MANIPULADORES DE EVENTOS
 // ============================================
 
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -267,20 +245,70 @@ function handleFormSubmit(e) {
     elements.submitBtn.disabled = true;
     elements.submitBtn.innerHTML = '<span class="spinner"></span> Processando...';
 
-    // Simular processamento
-    setTimeout(() => {
-        showPixModal();
-        state.isSubmitting = false;
+    try {
+        await processPixPayment();
+    } catch (error) {
+        console.error('Erro:', error);
+        showToast(error.message || 'Erro ao processar pagamento', 'error');
         elements.submitBtn.disabled = false;
-        elements.submitBtn.textContent = 'Prosseguir para Pagamento';
-        showToast('Dados validados com sucesso!', 'success');
-    }, 1500);
+        elements.submitBtn.textContent = 'Confirmar e Pagar';
+        state.isSubmitting = false;
+    }
+}
+
+async function processPixPayment() {
+    const pixData = {
+        paymentMethod: 'PIX',
+        amount: Math.round(state.reservationData.totalPrice * 100), // Converte para centavos
+        customer: {
+            name: state.formData.name,
+            email: state.formData.email,
+            phone: state.formData.phone.replace(/\D/g, ''),
+            document: {
+                number: state.formData.cpf.replace(/\D/g, ''),
+                type: 'CPF'
+            }
+        },
+        items: [{
+            title: 'Reserva de Estacionamento',
+            quantity: 1,
+            price: Math.round(state.reservationData.totalPrice * 100)
+        }],
+        pix: {
+            expiresIn: 3600 // Expira em 1 hora
+        }
+    };
+
+    try {
+        const response = await fetch('/api/payments/pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pixData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showPixModal(result);
+            showToast('Dados validados com sucesso!', 'success');
+        } else {
+            const errorMsg = result.error || result.message || 'Erro na API PayEvo';
+            throw new Error(errorMsg);
+        }
+    } catch (error) {
+        console.error('Erro ao gerar PIX:', error);
+        throw error;
+    }
 }
 
 function copyPixKey() {
     const pixKey = elements.pixKey.value;
     navigator.clipboard.writeText(pixKey).then(() => {
         showToast('Chave Pix copiada!', 'success');
+        elements.copyPixBtn.textContent = 'Copiado!';
+        setTimeout(() => {
+            elements.copyPixBtn.textContent = 'Copiar Código';
+        }, 2000);
     }).catch(() => {
         showToast('Erro ao copiar chave Pix', 'error');
     });
@@ -299,19 +327,67 @@ function confirmPayment() {
 // MODAL PIX
 // ============================================
 
-function showPixModal() {
-    const qrCode = generatePixQrCode();
-    elements.qrCodeImage.src = qrCode;
-    elements.pixModal.classList.remove('hidden');
+function showPixModal(paymentResult) {
+    if (paymentResult.pix && paymentResult.pix.qrcode) {
+        const pixCode = paymentResult.pix.qrcode;
+        
+        // Exibe o código "Copia e Cola"
+        elements.pixKey.value = pixCode;
+        
+        // Gera QR Code usando API externa (se disponível)
+        if (paymentResult.pix.qrcodeUrl) {
+            elements.qrCodeImage.src = paymentResult.pix.qrcodeUrl;
+        } else {
+            // Fallback: gera QR Code usando uma API pública
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
+            elements.qrCodeImage.src = qrCodeUrl;
+        }
+
+        elements.pixModal.classList.remove('hidden');
+        
+        // Atualiza o botão de submit
+        elements.submitBtn.textContent = 'Já Paguei';
+        elements.submitBtn.style.backgroundColor = '#10b981';
+        elements.submitBtn.style.borderColor = '#10b981';
+        elements.submitBtn.type = 'button';
+        elements.submitBtn.onclick = function() {
+            window.location.href = '/sucesso';
+        };
+
+        state.isSubmitting = false;
+        
+        // Inicia o contador de tempo para a validade do PIX
+        startPixTimer(3600); // 1 hora
+    } else {
+        throw new Error('Não foi possível obter os dados do PIX.');
+    }
 }
 
 function closePixModal() {
     elements.pixModal.classList.add('hidden');
 }
 
-function generatePixQrCode() {
-    // QR Code simulado - em produção, isso viria de um servidor
-    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="white"/%3E%3Crect x="10" y="10" width="30" height="30" fill="black"/%3E%3Crect x="160" y="10" width="30" height="30" fill="black"/%3E%3Crect x="10" y="160" width="30" height="30" fill="black"/%3E%3Crect x="50" y="50" width="100" height="100" fill="black" opacity="0.1"/%3E%3C/svg%3E';
+let pixTimer = null;
+
+function startPixTimer(seconds) {
+    const timerElement = document.getElementById('pixTimeRemaining');
+    let timeLeft = seconds;
+    
+    if (pixTimer) clearInterval(pixTimer);
+    
+    pixTimer = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(pixTimer);
+            timerElement.textContent = 'Expirado';
+            showToast('O código PIX expirou. Por favor, gere um novo código.', 'error');
+        }
+        
+        timeLeft--;
+    }, 1000);
 }
 
 // ============================================
