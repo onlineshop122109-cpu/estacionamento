@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuaruPark - Estacionamento Aeroporto Guarulhos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" fill="#3B82F6"/>
+                        <path d="M20 8L28 14V26C28 27.1 27.1 28 26 28H14C12.9 28 12 27.1 12 26V14L20 8Z" fill="white"/>
+                    </svg>
+                    <span>GuaruPark</span>
+                </div>
+                <nav class="nav">
+                    <a href="#como-funciona">Como funciona</a>
+                    <a href="#precos">Preços</a>
+                    <a href="#faq">FAQ</a>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn-login">Login</button>
+                    <button class="btn-signup">Cadastre-se</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Viaje tranquilo, seu carro fica seguro.</h1>
+            <p>A melhor opção de estacionamento a 5 minutos do Aeroporto de Guarulhos. Transfer gratuito 24h.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Reservation Form -->
+            <section class="reservation-section">
+                <div class="form-container">
+                    <h2>Selecione o período</h2>
+                    
+                    <form id="reservationForm" class="reservation-form">
+                        <div class="form-group">
+                            <label for="entryDate">ENTRADA</label>
+                            <input type="datetime-local" id="entryDate" name="entryDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exitDate">SAÍDA</label>
+                            <input type="datetime-local" id="exitDate" name="exitDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="parkingType">TIPO DE VAGA</label>
+                            <select id="parkingType" name="parkingType" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="covered">Vaga Coberta - R$ 19,00/dia</option>
+                                <option value="open">Vaga Descoberta - R$ 12,00/dia</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-reserve">RESERVAR AGORA</button>
+                    </form>
+                </div>
+
+                <!-- Summary Card -->
+                <div class="summary-card">
+                    <h3>Resumo da Reserva</h3>
+                    <div class="summary-item">
+                        <span>Entrada</span>
+                        <span id="summaryEntry">--/--/---- 12:00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Saída</span>
+                        <span id="summaryExit">--/--/---- 12:00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Vaga</span>
+                        <span id="summaryType">Selecione</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Diárias</span>
+                        <span id="summaryDays">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Valor/dia</span>
+                        <span id="summaryPrice">R$ 0,00</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>TOTAL</span>
+                        <span id="summaryTotal">R$ 0,00</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section id="como-funciona" class="how-it-works">
+                <h2>Como funciona</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Selecione as datas</h3>
+                        <p>Escolha a data e hora de entrada e saída do seu veículo.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Escolha o tipo de vaga</h3>
+                        <p>Opte entre vaga coberta ou descoberta conforme sua necessidade.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Preencha seus dados</h3>
+                        <p>Insira seus dados pessoais e do veículo para confirmar a reserva.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Efetue o pagamento</h3>
+                        <p>Finalize o pagamento de forma segura e receba a confirmação.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing -->
+            <section id="precos" class="pricing">
+                <h2>Preços e Vagas</h2>
+                <div class="pricing-cards">
+                    <div class="pricing-card">
+                        <h3>Vaga Coberta</h3>
+                        <div class="price">R$ 19,00<span>/dia</span></div>
+                        <ul class="features">
+                            <li>✓ Proteção contra chuva</li>
+                            <li>✓ Proteção contra sol</li>
+                            <li>✓ Segurança 24h</li>
+                            <li>✓ Transfer gratuito</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card">
+                        <h3>Vaga Descoberta</h3>
+                        <div class="price">R$ 12,00<span>/dia</span></div>
+                        <ul class="features">
+                            <li>✓ Segurança 24h</li>
+                            <li>✓ Transfer gratuito</li>
+                            <li>✓ Acesso fácil</li>
+                            <li>✓ Estacionamento rápido</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section id="faq" class="faq">
+                <h2>Perguntas Frequentes</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Qual é a distância do estacionamento até o aeroporto?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>O GuaruPark fica a apenas 5 minutos do Aeroporto de Guarulhos. Oferecemos transfer gratuito 24 horas para levar você até o terminal.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>O estacionamento é seguro?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sim! Temos segurança 24 horas com câmeras de vigilância, portaria monitorada e seguros contra roubo e danos. Seu veículo fica completamente protegido.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Como funciona o transfer gratuito?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Ao chegar no estacionamento, você será levado gratuitamente até o terminal do aeroporto. Na volta, você pode solicitar o transfer pelo telefone ou WhatsApp, e buscaremos você no aeroporto.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Posso cancelar minha reserva?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sim! Você pode cancelar sua reserva com até 24 horas de antecedência e receber reembolso total. Cancelamentos com menos de 24 horas terão uma taxa de 10%.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Qual é o horário de funcionamento?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>O GuaruPark funciona 24 horas por dia, 7 dias por semana. Você pode estacionar seu veículo a qualquer hora e contar com nosso suporte sempre disponível.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Quais são as formas de pagamento?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Aceitamos cartão de crédito, débito, PIX e boleto bancário. Todos os pagamentos são processados de forma segura e criptografada.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Há desconto para reservas de longa duração?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sim! Oferecemos descontos especiais para reservas acima de 7 dias. Entre em contato conosco para conhecer nossas promoções e pacotes especiais.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Como recebo a confirmação da minha reserva?</span>
+                            <span class="faq-toggle">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Após confirmar o pagamento, você receberá um e-mail com todos os detalhes da sua reserva, incluindo código de acesso, telefone de contato e instruções de chegada.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>GuaruPark</h4>
+                    <p>A melhor opção de estacionamento próximo ao Aeroporto de Guarulhos. Segurança, conforto e economia para sua viagem.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="#como-funciona">Como Funciona</a></li>
+                        <li><a href="#precos">Preços e Vagas</a></li>
+                        <li><a href="#faq">Perguntas Frequentes</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <p>📞 (11) 99999-9999</p>
+                    <p>📧 contato@guarupark.com.br</p>
+                    <p>📍 Rodovia Hélio Smidt, km 30</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Pagamento Seguro</h4>
+                    <div class="payment-icons">
+                        <span>💳 VISA</span>
+                        <span>💳 MC</span>
+                        <span>💳 AMEX</span>
+                        <span>💳 PIX</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 GuaruPark. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal para Reserva -->
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Confirmar Reserva</h2>
+            
+            <form id="confirmationForm" class="confirmation-form">
+                <fieldset>
+                    <legend>Dados Pessoais</legend>
+                    <div class="form-group">
+                        <label for="fullName">Nome Completo *</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="João Silva Santos" required>
+                        <span class="error-message" id="fullNameError"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cpf">CPF *</label>
+                            <input type="text" id="cpf" name="cpf" placeholder="123.456.789-00" required>
+                            <span class="error-message" id="cpfError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail *</label>
+                            <input type="email" id="email" name="email" placeholder="joao@email.com" required>
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Telefone *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="(11) 98765-4321" required>
+                        <span class="error-message" id="phoneError"></span>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Dados do Veículo</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="licensePlate">Placa do Veículo *</label>
+                            <input type="text" id="licensePlate" name="licensePlate" placeholder="ABC-1234 ou ABC1D23" required>
+                            <span class="error-message" id="licensePlateError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleType">Tipo de Veículo *</label>
+                            <select id="vehicleType" name="vehicleType" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="sedan">Sedã</option>
+                                <option value="suv">SUV</option>
+                                <option value="hatch">Hatch</option>
+                                <option value="pickup">Pickup</option>
+                                <option value="van">Van</option>
+                            </select>
+                            <span class="error-message" id="vehicleTypeError"></span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="modal-summary">
+                    <h3>Resumo da Reserva</h3>
+                    <div class="summary-item">
+                        <span>Entrada:</span>
+                        <span id="modalEntry">--/--/---- 12:00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Saída:</span>
+                        <span id="modalExit">--/--/---- 12:00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Vaga:</span>
+                        <span id="modalType">Selecione</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Diárias:</span>
+                        <span id="modalDays">0</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>TOTAL:</span>
+                        <span id="modalTotal">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-payment">Prosseguir para Pagamento</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
