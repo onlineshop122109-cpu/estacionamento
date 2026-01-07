@@ -333,3 +333,27 @@ function showToast(message, type = 'success') {
         }, 300);
     }, 3000);
 }
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+
+function init() {
+    // Carregar dados da URL
+    loadReservationDataFromURL();
+    
+    // Atualizar resumo
+    updateSummary();
+    
+    // Anexar event listeners
+    attachEventListeners();
+    
+    console.log('Checkout inicializado com sucesso');
+}
+
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
