@@ -1,701 +1,335 @@
-/* ============================================
-   CHECKOUT DE ESTACIONAMENTO - CSS
-   Design: Minimalismo Corporativo
-   Paleta: Azul profundo, Verde sucesso, Vermelho erro
-   ============================================ */
+/**
+ * CHECKOUT DE ESTACIONAMENTO - JavaScript
+ * Funcionalidades: Captura de URL, validações, formatação e pagamento via Pix
+ */
+
+// ============================================
+// ESTADO DA APLICAÇÃO
+// ============================================
+
+const state = {
+    reservationData: {
+        entryDate: '',
+        entryTime: '',
+        exitDate: '',
+        exitTime: '',
+        parkingType: 'uncovered',
+        insurance: false,
+        totalDays: '0',
+        totalPrice: '0.00',
+    },
+    formData: {
+        name: '',
+        cpf: '',
+        phone: '',
+        email: '',
+        licensePlate: '',
+        vehicleType: 'sedan',
+    },
+    isSubmitting: false,
+};
+
+// ============================================
+// ELEMENTOS DO DOM
+// ============================================
+
+const elements = {
+    // Formulário
+    form: document.getElementById('checkoutForm'),
+    nameInput: document.getElementById('name'),
+    cpfInput: document.getElementById('cpf'),
+    phoneInput: document.getElementById('phone'),
+    emailInput: document.getElementById('email'),
+    licensePlateInput: document.getElementById('licensePlate'),
+    vehicleTypeSelect: document.getElementById('vehicleType'),
+    submitBtn: document.getElementById('submitBtn'),
+
+    // Resumo
+    summaryEntryDate: document.getElementById('summaryEntryDate'),
+    summaryExitDate: document.getElementById('summaryExitDate'),
+    summaryParkingType: document.getElementById('summaryParkingType'),
+    summaryInsurance: document.getElementById('summaryInsurance'),
+    summaryTotalDays: document.getElementById('summaryTotalDays'),
+    summaryTotalPrice: document.getElementById('summaryTotalPrice'),
+
+    // Modal
+    pixModal: document.getElementById('pixModal'),
+    qrCodeImage: document.getElementById('qrCodeImage'),
+    modalTotalPrice: document.getElementById('modalTotalPrice'),
+    pixKey: document.getElementById('pixKey'),
+    copyPixBtn: document.getElementById('copyPixBtn'),
+    backBtn: document.getElementById('backBtn'),
+    confirmPaymentBtn: document.getElementById('confirmPaymentBtn'),
+
+    // Toast
+    toastContainer: document.getElementById('toastContainer'),
+};
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    extractUrlParams();
+    updateSummary();
+    attachEventListeners();
+});
+
+// ============================================
+// EXTRAÇÃO DE PARÂMETROS DA URL
+// ============================================
+
+function extractUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+
+    state.reservationData = {
+        entryDate: params.get('entryDate') || '',
+        entryTime: params.get('entryTime') || '',
+        exitDate: params.get('exitDate') || '',
+        exitTime: params.get('exitTime') || '',
+        parkingType: params.get('parkingType') || 'uncovered',
+        insurance: params.get('insurance') === 'true',
+        totalDays: params.get('totalDays') || '0',
+        totalPrice: params.get('totalPrice') || '0.00',
+    };
+}
+
+// ============================================
+// ATUALIZAÇÃO DO RESUMO
+// ============================================
+
+function updateSummary() {
+    const { entryDate, entryTime, exitDate, exitTime, parkingType, insurance, totalDays, totalPrice } = state.reservationData;
 
-/* ============================================
-   RESET E VARIÁVEIS
-   ============================================ */
-
-:root {
-    --primary: #1e40af;
-    --primary-hover: #1e3a8a;
-    --primary-light: #3b82f6;
-    --success: #10b981;
-    --success-light: #d1fae5;
-    --error: #ef4444;
-    --error-light: #fee2e2;
-    --background: #ffffff;
-    --foreground: #1f2937;
-    --border: #e5e7eb;
-    --muted: #9ca3af;
-    --muted-light: #f3f4f6;
-    --radius: 0.5rem;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background-color: var(--background);
-    color: var(--foreground);
-    line-height: 1.6;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-}
-
-/* ============================================
-   CONTAINER E LAYOUT
-   ============================================ */
-
-.container {
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-@media (min-width: 640px) {
-    .container {
-        padding: 0 1.5rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .container {
-        padding: 0 2rem;
-    }
-}
-
-/* ============================================
-   HEADER
-   ============================================ */
-
-.header {
-    border-bottom: 1px solid var(--border);
-    background-color: var(--background);
-    box-shadow: var(--shadow);
-    padding: 1.5rem 0;
-}
-
-.header-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--foreground);
-    margin-bottom: 0.25rem;
-}
-
-.header-subtitle {
-    font-size: 0.875rem;
-    color: var(--muted);
-}
-
-/* ============================================
-   MAIN CONTAINER
-   ============================================ */
-
-.main-container {
-    padding: 2rem 0;
-    min-height: calc(100vh - 120px);
-}
-
-.checkout-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-}
-
-@media (min-width: 1024px) {
-    .checkout-grid {
-        grid-template-columns: 2fr 1fr;
-    }
-}
-
-/* ============================================
-   FORMULÁRIO
-   ============================================ */
-
-.form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.checkout-form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-/* ============================================
-   CARDS
-   ============================================ */
-
-.form-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    background-color: var(--background);
-    box-shadow: var(--shadow);
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.card-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: var(--primary);
-    flex-shrink: 0;
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--foreground);
-}
-
-/* ============================================
-   FORMULÁRIO - GRUPOS
-   ============================================ */
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-}
-
-@media (min-width: 640px) {
-    .form-row {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-.form-label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--foreground);
-}
-
-.form-input,
-.form-input select {
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 1rem;
-    font-family: inherit;
-    background-color: var(--background);
-    color: var(--foreground);
-    transition: all 0.2s ease;
-}
-
-.form-input:focus,
-.form-input select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-}
-
-.form-input::placeholder {
-    color: var(--muted);
-}
-
-.form-input:invalid:not(:placeholder-shown) {
-    border-color: var(--error);
-}
-
-/* ============================================
-   PAGAMENTO
-   ============================================ */
-
-.payment-option {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--primary);
-    border-radius: var(--radius);
-    background-color: rgba(30, 64, 175, 0.05);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.payment-option:hover {
-    background-color: rgba(30, 64, 175, 0.1);
-}
-
-.payment-radio {
-    width: 1.25rem;
-    height: 1.25rem;
-    cursor: pointer;
-    accent-color: var(--primary);
-}
-
-.payment-label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    cursor: pointer;
-    flex: 1;
-}
-
-.payment-name {
-    font-weight: 500;
-    color: var(--foreground);
-}
-
-.payment-desc {
-    font-size: 0.875rem;
-    color: var(--muted);
-}
-
-/* ============================================
-   BOTÃO DE ENVIO
-   ============================================ */
-
-.submit-btn {
-    padding: 1.5rem;
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.submit-btn:hover:not(:disabled) {
-    background-color: var(--primary-hover);
-    box-shadow: var(--shadow-md);
-}
-
-.submit-btn:active:not(:disabled) {
-    transform: scale(0.98);
-}
-
-.submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.submit-btn.loading {
-    pointer-events: none;
-}
-
-/* ============================================
-   RESUMO DA RESERVA
-   ============================================ */
-
-.summary-section {
-    display: flex;
-    flex-direction: column;
-}
-
-.summary-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    background-color: var(--background);
-    box-shadow: var(--shadow-md);
-    position: sticky;
-    top: 2rem;
-}
-
-.summary-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--foreground);
-    margin-bottom: 1.5rem;
-}
-
-.summary-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding-bottom: 1.5rem;
-}
-
-.summary-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.summary-label {
-    font-size: 0.875rem;
-    color: var(--muted);
-}
-
-.summary-value {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--foreground);
-}
-
-.summary-divider {
-    height: 1px;
-    background-color: var(--border);
-    margin: 1rem 0;
-}
-
-.summary-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.5rem;
-}
-
-.total-label {
-    font-size: 0.875rem;
-    color: var(--muted);
-}
-
-.total-value {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--primary);
-}
-
-.summary-payment-method {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-bottom: 1rem;
-}
-
-/* ============================================
-   BADGE DE SEGURANÇA
-   ============================================ */
-
-.security-badge {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background-color: rgba(16, 185, 129, 0.1);
-    border-radius: var(--radius);
-}
-
-.badge-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: var(--success);
-    flex-shrink: 0;
-}
-
-.badge-text {
-    font-size: 0.75rem;
-    color: var(--foreground);
-}
-
-/* ============================================
-   MODAL PIX
-   ============================================ */
-
-.modal {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal.hidden {
-    display: none;
-}
-
-.modal-overlay {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    position: relative;
-    z-index: 51;
-    background-color: var(--background);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem;
-    max-width: 28rem;
-    width: 100%;
-    margin: 1rem;
-    box-shadow: var(--shadow-md);
-}
-
-.modal-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.modal-icon {
-    width: 4rem;
-    height: 4rem;
-    color: var(--success);
-    margin: 0 auto 1.5rem;
+    elements.summaryEntryDate.textContent = `${formatDate(entryDate)} às ${entryTime}`;
+    elements.summaryExitDate.textContent = `${formatDate(exitDate)} às ${exitTime}`;
+    elements.summaryParkingType.textContent = parkingType === 'covered' ? 'Coberta' : 'Descoberta';
+    elements.summaryInsurance.textContent = insurance ? 'Incluído' : 'Não incluído';
+    elements.summaryTotalDays.textContent = totalDays;
+    elements.summaryTotalPrice.textContent = formatCurrency(totalPrice);
+    elements.modalTotalPrice.textContent = formatCurrency(totalPrice);
 }
 
-.modal-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--foreground);
-    margin-bottom: 0.5rem;
-}
-
-.modal-subtitle {
-    font-size: 0.875rem;
-    color: var(--muted);
-}
-
-/* ============================================
-   QR CODE
-   ============================================ */
-
-.qr-code-container {
-    display: flex;
-    justify-content: center;
-    background-color: white;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: var(--radius);
-}
-
-.qr-code {
-    width: 16rem;
-    height: 16rem;
-}
-
-/* ============================================
-   VALOR DO PAGAMENTO
-   ============================================ */
-
-.modal-amount {
-    background-color: var(--muted-light);
-    padding: 1rem;
-    border-radius: var(--radius);
-    margin-bottom: 1.5rem;
-}
-
-.amount-label {
-    font-size: 0.875rem;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-}
-
-.amount-value {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--foreground);
-}
-
-/* ============================================
-   CHAVE PIX
-   ============================================ */
-
-.pix-key-section {
-    margin-bottom: 1.5rem;
-}
-
-.pix-key-label {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-}
-
-.pix-key-input-group {
-    display: flex;
-    gap: 0.5rem;
-}
+// ============================================
+// FORMATAÇÃO DE DATA
+// ============================================
 
-.pix-key-input {
-    flex: 1;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    background-color: var(--muted-light);
-    color: var(--foreground);
+function formatDate(dateStr) {
+    if (!dateStr) return '--';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
 }
 
-.copy-btn {
-    padding: 0.75rem 1rem;
-    background-color: var(--background);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--foreground);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.copy-btn:hover {
-    background-color: var(--muted-light);
-    border-color: var(--primary);
-}
-
-/* ============================================
-   BOTÕES DO MODAL
-   ============================================ */
-
-.modal-buttons {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.modal-btn {
-    flex: 1;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.modal-btn-secondary {
-    background-color: var(--background);
-    color: var(--foreground);
-}
-
-.modal-btn-secondary:hover {
-    background-color: var(--muted-light);
-    border-color: var(--primary);
-}
-
-.modal-btn-primary {
-    background-color: var(--success);
-    color: white;
-    border-color: var(--success);
-}
-
-.modal-btn-primary:hover {
-    background-color: #059669;
-}
+// ============================================
+// FORMATAÇÃO DE MOEDA
+// ============================================
 
-/* ============================================
-   TOAST
-   ============================================ */
-
-.toast-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    pointer-events: none;
-}
-
-.toast {
-    padding: 1rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-    font-size: 0.875rem;
-    font-weight: 500;
-    animation: slideIn 0.3s ease;
-    pointer-events: auto;
+function formatCurrency(value) {
+    const num = parseFloat(value);
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    }).format(num);
 }
 
-.toast.success {
-    background-color: var(--success);
-    color: white;
-}
-
-.toast.error {
-    background-color: var(--error);
-    color: white;
-}
+// ============================================
+// FORMATAÇÃO DE ENTRADA
+// ============================================
 
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+function formatCPF(value) {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length <= 3) return cleanValue;
+    if (cleanValue.length <= 6) return `${cleanValue.slice(0, 3)}.${cleanValue.slice(3)}`;
+    if (cleanValue.length <= 9) return `${cleanValue.slice(0, 3)}.${cleanValue.slice(3, 6)}.${cleanValue.slice(6)}`;
+    return `${cleanValue.slice(0, 3)}.${cleanValue.slice(3, 6)}.${cleanValue.slice(6, 9)}-${cleanValue.slice(9, 11)}`;
 }
 
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
+function formatPhone(value) {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length <= 2) return cleanValue;
+    if (cleanValue.length <= 7) return `(${cleanValue.slice(0, 2)}) ${cleanValue.slice(2)}`;
+    return `(${cleanValue.slice(0, 2)}) ${cleanValue.slice(2, 7)}-${cleanValue.slice(7, 11)}`;
 }
 
-.toast.removing {
-    animation: slideOut 0.3s ease;
+function formatLicensePlate(value) {
+    const cleanValue = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (cleanValue.length <= 3) return cleanValue;
+    if (cleanValue.length <= 7) return `${cleanValue.slice(0, 3)}-${cleanValue.slice(3)}`;
+    return cleanValue.slice(0, 8);
 }
 
-/* ============================================
-   SPINNER
-   ============================================ */
+// ============================================
+// VALIDAÇÃO
+// ============================================
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+function isValidCPF(cpf) {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    return cleanCpf.length === 11 && !/^(\d)\1{10}$/.test(cleanCpf);
 }
 
-.spinner {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-/* ============================================
-   RESPONSIVO
-   ============================================ */
+function validateForm() {
+    const { name, cpf, phone, email, licensePlate } = state.formData;
 
-@media (max-width: 768px) {
-    .header-title {
-        font-size: 1.5rem;
+    if (!name.trim()) {
+        showToast('Por favor, insira seu nome', 'error');
+        return false;
     }
 
-    .summary-card {
-        position: static;
-        top: auto;
+    if (!isValidCPF(cpf)) {
+        showToast('CPF inválido', 'error');
+        return false;
     }
 
-    .modal-content {
-        margin: 1rem;
+    if (!phone.replace(/\D/g, '') || phone.replace(/\D/g, '').length < 10) {
+        showToast('Telefone inválido', 'error');
+        return false;
     }
 
-    .qr-code {
-        width: 12rem;
-        height: 12rem;
+    if (!isValidEmail(email)) {
+        showToast('Email inválido', 'error');
+        return false;
     }
+
+    if (!licensePlate.trim() || licensePlate.replace(/\D/g, '').length < 7) {
+        showToast('Placa do veículo inválida', 'error');
+        return false;
+    }
+
+    return true;
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+
+function attachEventListeners() {
+    // Formulário
+    elements.form.addEventListener('submit', handleFormSubmit);
+
+    // Inputs com formatação
+    elements.cpfInput.addEventListener('input', (e) => {
+        e.target.value = formatCPF(e.target.value);
+        state.formData.cpf = e.target.value;
+    });
+
+    elements.phoneInput.addEventListener('input', (e) => {
+        e.target.value = formatPhone(e.target.value);
+        state.formData.phone = e.target.value;
+    });
+
+    elements.licensePlateInput.addEventListener('input', (e) => {
+        e.target.value = formatLicensePlate(e.target.value);
+        state.formData.licensePlate = e.target.value;
+    });
+
+    // Inputs normais
+    elements.nameInput.addEventListener('input', (e) => {
+        state.formData.name = e.target.value;
+    });
+
+    elements.emailInput.addEventListener('input', (e) => {
+        state.formData.email = e.target.value;
+    });
+
+    elements.vehicleTypeSelect.addEventListener('change', (e) => {
+        state.formData.vehicleType = e.target.value;
+    });
+
+    // Modal
+    elements.copyPixBtn.addEventListener('click', copyPixKey);
+    elements.backBtn.addEventListener('click', closePixModal);
+    elements.confirmPaymentBtn.addEventListener('click', confirmPayment);
+
+    // Fechar modal ao clicar no overlay
+    elements.pixModal.addEventListener('click', (e) => {
+        if (e.target === elements.pixModal) {
+            closePixModal();
+        }
+    });
+}
+
+// ============================================
+// MANIPULADORES DE EVENTOS
+// ============================================
+
+function handleFormSubmit(e) {
+    e.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
+
+    state.isSubmitting = true;
+    elements.submitBtn.disabled = true;
+    elements.submitBtn.innerHTML = '<span class="spinner"></span> Processando...';
+
+    // Simular processamento
+    setTimeout(() => {
+        showPixModal();
+        state.isSubmitting = false;
+        elements.submitBtn.disabled = false;
+        elements.submitBtn.textContent = 'Prosseguir para Pagamento';
+        showToast('Dados validados com sucesso!', 'success');
+    }, 1500);
+}
+
+function copyPixKey() {
+    const pixKey = elements.pixKey.value;
+    navigator.clipboard.writeText(pixKey).then(() => {
+        showToast('Chave Pix copiada!', 'success');
+    }).catch(() => {
+        showToast('Erro ao copiar chave Pix', 'error');
+    });
+}
+
+function confirmPayment() {
+    showToast('Pagamento confirmado!', 'success');
+    closePixModal();
+    // Aqui você pode redirecionar ou fazer outras ações após o pagamento
+    setTimeout(() => {
+        // Exemplo: window.location.href = '/sucesso';
+    }, 2000);
+}
+
+// ============================================
+// MODAL PIX
+// ============================================
+
+function showPixModal() {
+    const qrCode = generatePixQrCode();
+    elements.qrCodeImage.src = qrCode;
+    elements.pixModal.classList.remove('hidden');
+}
+
+function closePixModal() {
+    elements.pixModal.classList.add('hidden');
+}
+
+function generatePixQrCode() {
+    // QR Code simulado - em produção, isso viria de um servidor
+    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="white"/%3E%3Crect x="10" y="10" width="30" height="30" fill="black"/%3E%3Crect x="160" y="10" width="30" height="30" fill="black"/%3E%3Crect x="10" y="160" width="30" height="30" fill="black"/%3E%3Crect x="50" y="50" width="100" height="100" fill="black" opacity="0.1"/%3E%3C/svg%3E';
+}
+
+// ============================================
+// TOAST
+// ============================================
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    elements.toastContainer.appendChild(toast);
+
+    // Auto-remover após 3 segundos
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3000);
 }
