@@ -306,8 +306,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="fullName">Nome Completo *</label>
-                        <input type="text" id="fullName" name="fullName" class="form-input" required placeholder="Nome conforme documento">
+                        <label class="form-label" for="firstName">Nome Completo *</label>
+                        <input type="text" id="firstName" name="firstName" class="form-input" required placeholder="Nome conforme documento">
                     </div>
 
                     <div class="form-row">
@@ -388,15 +388,16 @@
         const BACKEND_API_BASE_URL = '/api/payments';
         const params = new URLSearchParams(window.location.search);
         
-        const orderData = {
+        // DADOS DA RESERVA - USANDO 'subtotal' CONFORME O ORIGINAL
+        const cartData = {
+            subtotal: parseFloat(params.get('subtotal') || 0),
             entryDate: params.get('entryDate'),
             entryTime: params.get('entryTime'),
             exitDate: params.get('exitDate'),
             exitTime: params.get('exitTime'),
             parkingType: params.get('parkingType'),
             insurance: params.get('insurance'),
-            totalDays: params.get('totalDays'),
-            totalPrice: parseFloat(params.get('totalPrice') || 0)
+            totalDays: params.get('totalDays')
         };
 
         function formatarData(dataStr) {
@@ -406,13 +407,13 @@
         }
 
         function atualizarInterface() {
-            if (orderData.entryDate) document.getElementById('displayEntry').textContent = `${formatarData(orderData.entryDate)} ${orderData.entryTime || ''}`;
-            if (orderData.exitDate) document.getElementById('displayExit').textContent = `${formatarData(orderData.exitDate)} ${orderData.exitTime || ''}`;
-            document.getElementById('displayParking').textContent = orderData.parkingType === 'covered' ? 'Coberta' : 'Descoberta';
-            document.getElementById('displayInsurance').textContent = orderData.insurance === 'true' ? 'Sim' : 'Não';
-            document.getElementById('displayDays').textContent = orderData.totalDays || '0';
+            if (cartData.entryDate) document.getElementById('displayEntry').textContent = `${formatarData(cartData.entryDate)} ${cartData.entryTime || ''}`;
+            if (cartData.exitDate) document.getElementById('displayExit').textContent = `${formatarData(cartData.exitDate)} ${cartData.exitTime || ''}`;
+            document.getElementById('displayParking').textContent = cartData.parkingType === 'covered' ? 'Coberta' : 'Descoberta';
+            document.getElementById('displayInsurance').textContent = cartData.insurance === 'true' ? 'Sim' : 'Não';
+            document.getElementById('displayDays').textContent = cartData.totalDays || '0';
             
-            const precoFormatado = `R$ ${orderData.totalPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            const precoFormatado = `R$ ${cartData.subtotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
             document.getElementById('displayTotal').textContent = precoFormatado;
             document.getElementById('mobileTotalPrice').textContent = precoFormatado;
         }
@@ -446,12 +447,12 @@
 
             const formData = new FormData(this);
             
-            // PAYLOAD RECONSTRUÍDO PARA SER IDÊNTICO AO ORIGINAL FUNCIONAL
+            // PAYLOAD RECONSTRUÍDO COM 'subtotal' E CAMPOS OBRIGATÓRIOS
             const pixData = {
                 paymentMethod: 'PIX',
-                amount: Math.round(orderData.totalPrice * 100),
+                amount: Math.round(cartData.subtotal * 100),
                 customer: {
-                    name: formData.get('fullName'), // O original usava firstName mas passava o nome completo
+                    name: formData.get('firstName'),
                     email: formData.get('email'),
                     phone: formData.get('phone').replace(/\D/g, ''),
                     document: {
@@ -459,10 +460,19 @@
                         type: 'CPF'
                     }
                 },
+                shipping: {
+                    address: 'Aeroporto de Guarulhos',
+                    number: 'SN',
+                    complement: 'Estacionamento',
+                    neighborhood: 'Cumbica',
+                    city: 'Guarulhos',
+                    state: 'SP',
+                    zipCode: '07190100'
+                },
                 items: [{
-                    title: 'Pedido Loja Online', // Título idêntico ao original
+                    title: 'Pedido Loja Online',
                     quantity: 1,
-                    price: Math.round(orderData.totalPrice * 100)
+                    price: Math.round(cartData.subtotal * 100)
                 }],
                 pix: {
                     expiresIn: 3600
