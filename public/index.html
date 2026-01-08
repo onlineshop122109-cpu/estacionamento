@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pagamento - Finalizar Compra</title>
+  <title>Pagamento - Finalizar Reserva</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -11,8 +11,9 @@
       --secondary-color: #f8f9fa;
       --text-color: #333;
       --border-color: #ddd;
-      --success-color: #28a745;
+      --success-color: #10b981;
       --warning-color: #ffc107;
+      --error-color: #ef4444;
     }
 
     body {
@@ -153,25 +154,15 @@
       font-size: 18px;
     }
 
-    .payment-methods {
-      margin-top: 25px;
-    }
-
     .payment-option {
-      border: 2px solid var(--border-color);
+      border: 2px solid var(--primary-color);
       border-radius: 6px;
       padding: 15px;
       margin-bottom: 10px;
-      cursor: pointer;
+      background-color: #f0f7ff;
       display: flex;
       align-items: center;
       gap: 10px;
-      transition: all 0.2s;
-    }
-
-    .payment-option.active {
-      border-color: var(--primary-color);
-      background-color: #f0f7ff;
     }
 
     .btn-primary {
@@ -186,20 +177,86 @@
       cursor: pointer;
       margin-top: 20px;
       transition: background 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
 
     .btn-primary:hover {
-      background-color: #218838;
+      filter: brightness(0.9);
     }
 
-    .error-message {
-      color: #dc3545;
-      font-size: 12px;
-      margin-top: 5px;
+    .btn-loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* PIX Details */
+    #pixPaymentDetails {
       display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
     }
 
-    /* Mobile Summary Toggle */
+    .pix-qr-container {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .pix-code-box {
+      background: #fff;
+      padding: 10px;
+      border: 1px dashed #ccc;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .copy-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .timer {
+      font-weight: bold;
+      color: var(--error-color);
+    }
+
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Mobile Summary */
     .order-summary-mobile {
       display: none;
       background: #fff;
@@ -209,23 +266,23 @@
     }
 
     @media (max-width: 768px) {
-      .order-summary-mobile {
-        display: block;
-      }
-      .order-summary.desktop-only {
-        display: none;
-      }
+      .order-summary-mobile { display: block; }
+      .order-summary.desktop-only { display: none; }
     }
   </style>
 </head>
 <body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: 500;">Processando sua reserva...</p>
+    </div>
+
     <div class="checkout-container">
         <header class="checkout-header">
             <div class="header-content" style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
                 <div class="logo">GuaruPark</div>
                 <div class="security-badge">
-                    <span>🔒</span>
-                    Compra 100% Segura
+                    <span>🔒</span> Compra 100% Segura
                 </div>
             </div>
         </header>
@@ -286,22 +343,26 @@
 
                     <div class="section-divider">
                         <h3 class="section-title">Forma de Pagamento</h3>
-                        <div class="payment-methods">
-                            <div class="payment-option active">
-                                <input type="radio" name="paymentMethod" value="pix" checked id="payPix">
-                                <label for="payPix" style="display: flex; align-items: center; gap: 10px; cursor: pointer; width: 100%;">
-                                    <img src="https://logopng.com.br/logos/pix-106.png" alt="PIX" height="20">
-                                    <strong>PIX</strong>
-                                    <span style="margin-left: auto; color: var(--success-color); font-size: 12px;">Aprovação imediata</span>
-                                </label>
-                            </div>
-                            <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                                * Cartão de crédito e boleto não estão disponíveis para esta reserva.
-                            </p>
+                        <div class="payment-option">
+                            <img src="https://logopng.com.br/logos/pix-106.png" alt="PIX" height="20">
+                            <strong>PIX</strong>
+                            <span style="margin-left: auto; color: var(--success-color); font-size: 12px;">Aprovação imediata</span>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-primary">
+                    <div id="pixPaymentDetails">
+                        <h4>Pagamento via PIX</h4>
+                        <p>Escaneie o QR Code ou copie o código abaixo:</p>
+                        <div class="pix-qr-container" id="pixQrCode">
+                            <!-- QR Code seria inserido aqui se a API retornasse imagem -->
+                            <div style="padding: 20px; border: 1px solid #eee;">QR Code Gerado</div>
+                        </div>
+                        <div class="pix-code-box" id="pixCodeText">Carregando código...</div>
+                        <button type="button" class="copy-btn" id="pixCopyButton" onclick="copyPixCode()">Copiar Código</button>
+                        <p style="margin-top: 15px; font-size: 14px;">O código expira em: <span class="timer" id="pixTimeRemaining">15:00</span></p>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-primary">
                         Finalizar Reserva e Pagar
                     </button>
                 </form>
@@ -309,41 +370,162 @@
 
             <aside class="order-summary desktop-only">
                 <h3 class="summary-title">Resumo da Reserva</h3>
-                
                 <div id="summaryDetails">
-                    <div class="summary-item">
-                        <span>Entrada:</span>
-                        <strong id="displayEntry">--/--/---- --:--</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Saída:</span>
-                        <strong id="displayExit">--/--/---- --:--</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Tipo de Vaga:</span>
-                        <strong id="displayParking">---</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Seguro:</span>
-                        <strong id="displayInsurance">Não</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Diárias:</span>
-                        <strong id="displayDays">0</strong>
-                    </div>
+                    <div class="summary-item"><span>Entrada:</span> <strong id="displayEntry">--/--/---- --:--</strong></div>
+                    <div class="summary-item"><span>Saída:</span> <strong id="displayExit">--/--/---- --:--</strong></div>
+                    <div class="summary-item"><span>Tipo de Vaga:</span> <strong id="displayParking">---</strong></div>
+                    <div class="summary-item"><span>Seguro:</span> <strong id="displayInsurance">Não</strong></div>
+                    <div class="summary-item"><span>Diárias:</span> <strong id="displayDays">0</strong></div>
                 </div>
-
                 <div class="summary-total">
                     <span>Total a pagar</span>
                     <span id="displayTotal">R$ 0,00</span>
-                </div>
-
-                <div style="margin-top: 20px; font-size: 12px; color: #888; text-align: center;">
-                    <p>Ao finalizar, você concorda com os termos de uso do GuaruPark.</p>
                 </div>
             </aside>
         </main>
     </div>
 
+    <script>
+        const BACKEND_API_BASE_URL = '/api/payments';
+        const params = new URLSearchParams(window.location.search);
+        
+        const orderData = {
+            entryDate: params.get('entryDate'),
+            entryTime: params.get('entryTime'),
+            exitDate: params.get('exitDate'),
+            exitTime: params.get('exitTime'),
+            parkingType: params.get('parkingType'),
+            insurance: params.get('insurance'),
+            totalDays: params.get('totalDays'),
+            totalPrice: parseFloat(params.get('totalPrice') || 0)
+        };
+
+        function formatarData(dataStr) {
+            if (!dataStr) return '--/--/----';
+            const [ano, mes, dia] = dataStr.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        function atualizarInterface() {
+            if (orderData.entryDate) document.getElementById('displayEntry').textContent = `${formatarData(orderData.entryDate)} ${orderData.entryTime || ''}`;
+            if (orderData.exitDate) document.getElementById('displayExit').textContent = `${formatarData(orderData.exitDate)} ${orderData.exitTime || ''}`;
+            document.getElementById('displayParking').textContent = orderData.parkingType === 'covered' ? 'Coberta' : 'Descoberta';
+            document.getElementById('displayInsurance').textContent = orderData.insurance === 'true' ? 'Sim' : 'Não';
+            document.getElementById('displayDays').textContent = orderData.totalDays || '0';
+            
+            const precoFormatado = `R$ ${orderData.totalPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('displayTotal').textContent = precoFormatado;
+            document.getElementById('mobileTotalPrice').textContent = precoFormatado;
+        }
+
+        // Máscaras
+        document.getElementById('cpf').addEventListener('input', e => {
+            let v = e.target.value.replace(/\D/g, '');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = v;
+        });
+
+        document.getElementById('phone').addEventListener('input', e => {
+            let v = e.target.value.replace(/\D/g, '');
+            v = v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
+            e.target.value = v;
+        });
+
+        // Envio do Formulário e Integração API
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (submitBtn.textContent === 'Já Paguei') {
+                window.location.href = 'https://statusdopedido.manus.space/';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-loading');
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            const formData = new FormData(this);
+            const payload = {
+                paymentMethod: 'PIX',
+                amount: Math.round(orderData.totalPrice * 100),
+                customer: {
+                    name: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone').replace(/\D/g, ''),
+                    document: {
+                        number: formData.get('cpf').replace(/\D/g, ''),
+                        type: 'CPF'
+                    }
+                },
+                vehicle: {
+                    plate: formData.get('plate').toUpperCase(),
+                    type: formData.get('vehicleType')
+                },
+                reservation: orderData,
+                items: [{
+                    title: `Reserva GuaruPark - ${orderData.totalDays} diárias`,
+                    quantity: 1,
+                    price: Math.round(orderData.totalPrice * 100)
+                }]
+            };
+
+            try {
+                const response = await fetch(`${BACKEND_API_BASE_URL}/pix`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.pix) {
+                    showPixDetails(result.pix.qrcode);
+                } else {
+                    throw new Error(result.error || result.message || 'Erro ao gerar PIX');
+                }
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-loading');
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+
+        function showPixDetails(qrcode) {
+            document.getElementById('pixPaymentDetails').style.display = 'block';
+            document.getElementById('pixCodeText').textContent = qrcode;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = 'Já Paguei';
+            submitBtn.style.backgroundColor = '#10b981';
+            
+            startTimer(900);
+            window.scrollTo({ top: document.getElementById('pixPaymentDetails').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            const display = document.getElementById('pixTimeRemaining');
+            const interval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (--timer < 0) clearInterval(interval);
+            }, 1000);
+        }
+
+        function copyPixCode() {
+            const code = document.getElementById('pixCodeText').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('pixCopyButton');
+                btn.textContent = 'Copiado!';
+                setTimeout(() => btn.textContent = 'Copiar Código', 2000);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', atualizarInterface);
+    </script>
 </body>
 </html>
