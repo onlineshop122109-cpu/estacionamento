@@ -446,12 +446,12 @@
 
             const formData = new FormData(this);
             
-            // PAYLOAD COMPLETO COM CAMPOS OBRIGATÓRIOS (INCLUINDO ENDEREÇO PADRÃO)
+            // PAYLOAD RECONSTRUÍDO PARA SER IDÊNTICO AO ORIGINAL FUNCIONAL
             const pixData = {
                 paymentMethod: 'PIX',
                 amount: Math.round(orderData.totalPrice * 100),
                 customer: {
-                    name: formData.get('fullName'),
+                    name: formData.get('fullName'), // O original usava firstName mas passava o nome completo
                     email: formData.get('email'),
                     phone: formData.get('phone').replace(/\D/g, ''),
                     document: {
@@ -459,29 +459,13 @@
                         type: 'CPF'
                     }
                 },
-                // Endereço padrão para satisfazer a API (já que removemos o formulário de frete)
-                shipping: {
-                    address: 'Aeroporto de Guarulhos',
-                    number: 'SN',
-                    complement: 'Estacionamento',
-                    neighborhood: 'Cumbica',
-                    city: 'Guarulhos',
-                    state: 'SP',
-                    zipCode: '07190100'
-                },
                 items: [{
-                    title: `Reserva GuaruPark - ${orderData.totalDays} diárias`,
+                    title: 'Pedido Loja Online', // Título idêntico ao original
                     quantity: 1,
                     price: Math.round(orderData.totalPrice * 100)
                 }],
                 pix: {
                     expiresIn: 3600
-                },
-                metadata: {
-                    plate: formData.get('plate').toUpperCase(),
-                    vehicleType: formData.get('vehicleType'),
-                    entry: `${orderData.entryDate} ${orderData.entryTime}`,
-                    exit: `${orderData.exitDate} ${orderData.exitTime}`
                 }
             };
 
