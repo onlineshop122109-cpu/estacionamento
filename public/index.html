@@ -354,7 +354,6 @@
                         <h4>Pagamento via PIX</h4>
                         <p>Escaneie o QR Code ou copie o código abaixo:</p>
                         <div class="pix-qr-container" id="pixQrCode">
-                            <!-- QR Code seria inserido aqui se a API retornasse imagem -->
                             <div style="padding: 20px; border: 1px solid #eee;">QR Code Gerado</div>
                         </div>
                         <div class="pix-code-box" id="pixCodeText">Carregando código...</div>
@@ -446,11 +445,13 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
 
             const formData = new FormData(this);
-            const payload = {
+            
+            // PAYLOAD AJUSTADO PARA O FORMATO EXATO DO CÓDIGO ORIGINAL (PAYEVO)
+            const pixData = {
                 paymentMethod: 'PIX',
-                amount: Math.round(orderData.totalPrice * 100),
+                amount: Math.round(orderData.totalPrice * 100), // Converte para centavos
                 customer: {
-                    name: formData.get('fullName'),
+                    name: formData.get('fullName'), // Nome completo
                     email: formData.get('email'),
                     phone: formData.get('phone').replace(/\D/g, ''),
                     document: {
@@ -458,33 +459,45 @@
                         type: 'CPF'
                     }
                 },
-                vehicle: {
-                    plate: formData.get('plate').toUpperCase(),
-                    type: formData.get('vehicleType')
-                },
-                reservation: orderData,
                 items: [{
                     title: `Reserva GuaruPark - ${orderData.totalDays} diárias`,
                     quantity: 1,
                     price: Math.round(orderData.totalPrice * 100)
-                }]
+                }],
+                pix: {
+                    expiresIn: 3600 // Expira em 1 hora
+                },
+                // Metadados adicionais (opcional, se o backend aceitar)
+                metadata: {
+                    plate: formData.get('plate').toUpperCase(),
+                    vehicleType: formData.get('vehicleType'),
+                    entry: `${orderData.entryDate} ${orderData.entryTime}`,
+                    exit: `${orderData.exitDate} ${orderData.exitTime}`
+                }
             };
 
             try {
                 const response = await fetch(`${BACKEND_API_BASE_URL}/pix`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(pixData)
                 });
 
                 const result = await response.json();
 
-                if (response.ok && result.pix) {
-                    showPixDetails(result.pix.qrcode);
+                if (response.ok) {
+                    // O código original espera result.pix.qrcode
+                    if (result.pix && result.pix.qrcode) {
+                        showPixDetails(result.pix.qrcode);
+                    } else {
+                        throw new Error('Resposta da API sem código PIX');
+                    }
                 } else {
-                    throw new Error(result.error || result.message || 'Erro ao gerar PIX');
+                    const errorMsg = result.error || result.message || 'Erro na API PayEvo';
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
+                console.error('Erro ao gerar PIX:', error);
                 alert('Erro: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
